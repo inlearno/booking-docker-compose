@@ -1,0 +1,59 @@
+version: "3"
+services:
+  php-fpm:
+    build:
+      context: ./php
+    volumes:
+      - ${PROJECT_DIR}:/opt/project
+      - /run/host-services/ssh-auth.sock:/ssh-agent.sock:rw
+    environment:
+      - SSH_AUTH_SOCK=/ssh-agent.sock
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+  mysql:
+    image: mysql
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - "${MYSQL_EXPOSE_PORT:?}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:?}
+  nginx:
+    image: nginx
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:80"]
+      start_period: 15s
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    environment:
+      PHP_FPM_HOST: php-fpm
+      PORT: ${PORT}
+    volumes:
+      - ./nginx:/etc/nginx/templates
+      - ${PROJECT_DIR}:/opt/project
+    ports:
+      - "${PORT:?}:80"
+
+  sencha:
+    build:
+      context: ./sencha
+    volumes:
+      - ${PROJECT_DIR}/www/desktop:/desktop
+      - ${PROJECT_DIR}/www/desktop_packages:/desktop_packages
+    command: sencha app build
+    working_dir: /desktop
+    depends_on:
+      nginx:
+        condition: service_healthy
+
+volumes:
+  db:

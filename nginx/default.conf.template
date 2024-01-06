@@ -1,0 +1,91 @@
+server {
+    listen   80;
+    client_max_body_size 100m;
+
+    set $ROOT /opt/project;
+    root $ROOT/www/sites;
+    index index.html index.php;
+
+    server_name $HOST;
+
+    access_log /dev/stdout;
+    error_log /dev/stderr;
+
+    sendfile off;
+
+    location /desktop {
+        index index.html;
+        root $ROOT/www;
+    }
+    
+
+    location ~ /img/ {
+        root $ROOT/www;
+    }
+    
+    location /resources/ {
+        root $ROOT/runtime/storage;
+    }
+
+    location /desktop_packages/ {
+        rewrite /desktop_packages/(.*) /$1 break;
+        root $ROOT/www/desktop_packages;
+    }
+
+    location /socket.io/ {
+        proxy_pass http://localhost:7700;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+    
+    location / {
+        try_files $uri $uri/ /sites/index.php?q=$uri&$args;
+        if (!-e $request_filename){
+            rewrite (.*) /index.php last;
+        }
+        log_subrequest on;
+    }
+    
+    location /site/ {
+        try_files $uri $uri/ /sites/public.php?q=$uri&$args;
+        if (!-e $request_filename){
+            rewrite (.*) /public.php last;
+        }
+        log_subrequest on;
+    }
+
+
+    location ~ \.php$ {
+        fastcgi_pass  ${PHP_FPM_HOST}:9000;
+        try_files $uri $uri/ /index.php?q=$uri&$args;
+        log_subrequest on;
+        include fastcgi_params;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  $ROOT/www/sites$fastcgi_script_name;
+        fastcgi_param  DOCUMENT_ROOT $ROOT/www/sites;
+        fastcgi_param  PATH_INFO $fastcgi_script_name;
+        fastcgi_param  QUERY_STRING     $query_string;
+        fastcgi_param  REQUEST_METHOD   $request_method;
+        fastcgi_param  CONTENT_TYPE     $content_type;
+        fastcgi_param  CONTENT_LENGTH   $content_length;
+        fastcgi_param  HTTP_HOST 127.0.0.1:$PORT;
+    }
+
+    location /admin {
+        index index.html;
+        alias $ROOT/www/desktop/build/production/Desktop;
+    }
+
+
+    location ~ /\.ht {
+        deny all;
+    }
+    location ~ /\.git {
+        deny all;
+    }
+
+    location /assets {
+        root $ROOT/runtime;
+    }
+}
