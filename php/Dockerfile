@@ -21,7 +21,8 @@ RUN pecl install mongodb zip \
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 RUN mkdir ~/.ssh && chmod -R 0600 ~/.ssh
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+COPY php.ini "$PHP_INI_DIR/php.ini"
+# RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 COPY docker-entrypoint.d /docker-entrypoint.d
 COPY docker-php-entrypoint.sh /docker-php-entrypoint.sh

@@ -13,7 +13,8 @@ services:
       - MYSQL_PASSWORD=$MYSQL_ROOT_PASSWORD
       - MYSQL_DATABASE=$MYSQL_DATABASE
   mysql:
-    image: mysql
+    build:
+      context: ./mysql
     volumes:
       - db:/var/lib/mysql
     ports:

@@ -1,0 +1,73 @@
+[client]
+port=3306
+default-character-set=utf8
+
+[mysql]
+default-character-set=utf8
+
+# The Percona Server 5.7 configuration file.
+#
+# One can use all long options that the program supports.
+# Run program with --help to get a list of available options and with
+# --print-defaults to see which it would actually understand and use.
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
+
+[mysqld]
+
+character-set-server = utf8
+collation-server = utf8_general_ci
+
+user                            = mysql
+pid_file                        = /var/lib/mysql/mysql.pid
+socket                          = /var/lib/mysql/mysql.sock
+port                            = 3306
+basedir                         = /usr
+datadir                         = /var/lib/mysql
+tmpdir                          = /tmp
+lc-messages-dir                 = /usr/share/mysql
+explicit_defaults_for_timestamp
+
+#log-error    = /var/log/mysql/error.log
+
+# Recommended in standard MySQL setup
+sql_mode=NO_ENGINE_SUBSTITUTION
+
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+# start tuning section here
+# -------------------------
+
+log_timestamps                  = SYSTEM
+long_query_time                 = 5
+log_queries_not_using_indexes   = OFF
+slow_query_log_file             = /var/log/mysql/log/slow.log
+general_log_file                = /var/log/mysql/log/full.log
+slow_query_log                  = OFF
+general_log                     = OFF
+
+# buffer: 70%...80% RAM
+innodb_buffer_pool_size         = 1024M
+
+# 25% from innodb_buffer_pool_size
+# Use when revert transaction is required after damage
+innodb_log_file_size            = 128M
+innodb_flush_method             = O_DIRECT
+
+query_cache_size                = 0
+query_cache_type                = 0
+query_cache_limit               = 1M
+
+tmp_table_size                  = 16M
+max_heap_table_size             = 16M
+thread_cache_size               = 16
+skip_name_resolve               = ON
+thread_pool_size                = 16
+key_buffer_size                 = 16M
+max_allowed_packet              = 16M
+
+read_buffer_size                = 128k
+read_rnd_buffer_size            = 256k
+join_buffer_size                = 128k
+
