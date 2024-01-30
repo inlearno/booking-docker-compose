@@ -55,7 +55,6 @@ server {
         log_subrequest on;
     }
 
-
     location ~ \.php$ {
         fastcgi_pass  ${PHP_FPM_HOST}:9000;
         try_files $uri $uri/ /index.php?q=$uri&$args;
