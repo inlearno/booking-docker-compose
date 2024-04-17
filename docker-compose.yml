@@ -50,7 +50,7 @@ services:
     volumes:
       - ${PROJECT_DIR}/www/desktop:/desktop
       - ${PROJECT_DIR}/www/desktop_packages:/desktop_packages
-    command: sencha app build
+    command: sencha app build -c
     working_dir: /desktop
     depends_on:
       nginx:
