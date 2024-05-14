@@ -3,6 +3,7 @@ services:
   php-fpm:
     build:
       context: ./php
+    restart: unless-stopped
     volumes:
       - ${PROJECT_DIR}:/opt/project
       - /run/host-services/ssh-auth.sock:/ssh-agent.sock:rw
@@ -19,6 +20,7 @@ services:
       - db:/var/lib/mysql
     ports:
       - "${MYSQL_EXPOSE_PORT:?}:3306"
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -47,14 +49,12 @@ services:
   sencha:
     build:
       context: ./sencha
+    restart: unless-stopped
     volumes:
       - ${PROJECT_DIR}/www/desktop:/desktop
       - ${PROJECT_DIR}/www/desktop_packages:/desktop_packages
-    command: sencha app build -c
+    command: sencha app watch
     working_dir: /desktop
-    depends_on:
-      nginx:
-        condition: service_healthy
 
 volumes:
   db:

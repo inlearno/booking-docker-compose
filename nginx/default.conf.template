@@ -73,7 +73,8 @@ server {
 
     location /admin {
         index index.html;
-        alias $ROOT/www/desktop/build/production/Desktop;
+        alias $ROOT/www/desktop;
+        #alias $ROOT/www/desktop/build/production/Desktop;
     }
 
 
